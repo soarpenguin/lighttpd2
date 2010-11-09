@@ -51,6 +51,7 @@ def build(bld):
 		response.c
 		server.c
 		stat_cache.c
+		stream.c
 		throttle.c
 		url_parser.rl
 		value.c

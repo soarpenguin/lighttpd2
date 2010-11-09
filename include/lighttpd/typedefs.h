@@ -205,6 +205,14 @@ typedef struct liServer liServer;
 
 typedef struct liServerSocket liServerSocket;
 
+/* stream.h */
+
+typedef struct liStreamSource liStreamSource;
+typedef struct liStreamDrain liStreamDrain;
+typedef struct liStream liStream;
+typedef struct liStreamPlug liStreamPlug;
+typedef struct liIOStream liIOStream;
+
 /* throttle.h */
 
 typedef struct liThrottlePool liThrottlePool;

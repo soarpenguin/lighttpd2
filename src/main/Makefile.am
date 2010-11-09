@@ -35,6 +35,7 @@ lighttpd_shared_src= \
 	response.c \
 	server.c \
 	stat_cache.c \
+	stream.c \
 	throttle.c \
 	url_parser.c \
 	value.c \
