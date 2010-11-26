@@ -37,9 +37,11 @@ struct liConnection {
 	liConnectionState state;
 	gboolean response_headers_sent, expect_100_cont;
 
-	liChunkQueue *raw_in, *raw_out;
-	liChunkQueue *in, *out;    /* link to mainvr->in/out */
-	liBuffer *raw_in_buffer;
+	liIOStream *sock_stream;
+
+	liStreamPlug raw_in, raw_out;
+
+	liStreamPlug in, out;
 
 	liVRequest *mainvr;
 	liHttpRequestCtx req_parser_ctx;
@@ -57,9 +59,6 @@ struct liConnection {
 
 	ev_io sock_watcher;
 	gboolean can_read, can_write;
-
-	/* I/O timeout data */
-	liWaitQueueElem io_timeout_elem;
 };
 
 /* Internal functions */

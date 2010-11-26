@@ -33,7 +33,7 @@ gboolean li_response_send_headers(liConnection *con) {
 
 	head = g_string_sized_new(8*1024-1);
 
-	if (0 == con->out->length && con->mainvr->backend == NULL
+	if (0 == con->out.source.cq->length && con->mainvr->backend == NULL
 		&& vr->response.http_status >= 400 && vr->response.http_status < 600) {
 		li_response_send_error_page(con);
 	}
@@ -43,13 +43,13 @@ gboolean li_response_send_headers(liConnection *con) {
 	     vr->response.http_status == 205 ||
 	     vr->response.http_status == 304) {
 		/* They never have a content-body/length */
-		li_chunkqueue_reset(con->out);
-		con->out->is_closed = TRUE;
-		con->raw_out->is_closed = TRUE;
-	} else if (con->out->is_closed) {
-		if (vr->request.http_method != LI_HTTP_METHOD_HEAD || con->out->length > 0) {
+		li_chunkqueue_reset(con->out.source.cq);
+		li_stream_drain_disconnect(&con->out.drain);
+		con->out.source.cq->is_closed = TRUE;
+	} else if (con->out.source.cq->is_closed) {
+		if (vr->request.http_method != LI_HTTP_METHOD_HEAD || con->out.source.cq->length > 0) {
 			/* do not send content-length: 0 if backend already skipped content generation for HEAD */
-			g_string_printf(con->wrk->tmp_str, "%"L_GOFFSET_FORMAT, con->out->length);
+			g_string_printf(con->wrk->tmp_str, "%"L_GOFFSET_FORMAT, con->out.source.cq->length);
 			li_http_header_overwrite(vr->response.headers, CONST_STR_LEN("Content-Length"), GSTR_LEN(con->wrk->tmp_str));
 		}
 	} else if (con->info.keep_alive && vr->request.http_version == LI_HTTP_VERSION_1_1) {
@@ -65,9 +65,9 @@ gboolean li_response_send_headers(liConnection *con) {
 
 	if (vr->request.http_method == LI_HTTP_METHOD_HEAD) {
 		/* content-length is set, but no body */
-		li_chunkqueue_reset(con->out);
-		con->out->is_closed = TRUE;
-		con->raw_out->is_closed = TRUE;
+		li_chunkqueue_reset(con->out.source.cq);
+		li_stream_drain_disconnect(&con->out.drain);
+		con->out.source.cq->is_closed = TRUE;
 	}
 
 	/* Status line */
@@ -126,7 +126,7 @@ gboolean li_response_send_headers(liConnection *con) {
 	}
 
 	g_string_append_len(head, CONST_STR_LEN("\r\n"));
-	li_chunkqueue_append_string(con->raw_out, head);
+	li_chunkqueue_append_string(con->raw_out.source.cq, head);
 
 	return TRUE;
 }
@@ -256,7 +256,7 @@ void li_response_send_error_page(liConnection *con) {
 
 	li_http_header_overwrite(vr->response.headers, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("text/html; charset=utf-8"));
 
-	li_chunkqueue_append_string(con->out, html);
+	li_chunkqueue_append_string(con->out.source.cq, html);
 	li_http_header_remove(vr->response.headers, CONST_STR_LEN("transfer-encoding"));
 	li_http_header_remove(vr->response.headers, CONST_STR_LEN("content-encoding"));
 	li_http_header_remove(vr->response.headers, CONST_STR_LEN("etag"));

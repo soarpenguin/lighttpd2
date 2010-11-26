@@ -2,11 +2,18 @@
 #include <lighttpd/base.h>
 #include <lighttpd/plugin_core.h>
 
+#if 0
+
 static void li_connection_reset_keep_alive(liConnection *con);
 static G_GNUC_WARN_UNUSED_RESULT gboolean li_connection_internal_error(liConnection *con);
 
 static void update_io_events(liConnection *con) {
+
+	
+
 	int events = 0;
+
+
 
 	if (LI_CON_STATE_KEEP_ALIVE == con->state) {
 		events = EV_READ;
@@ -806,3 +813,5 @@ liConnection* li_connection_from_vrequest(liVRequest *vr) {
 
 	return con;
 }
+
+#endif
