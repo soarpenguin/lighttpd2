@@ -1,5 +1,33 @@
 ## our modules are without the "lib" prefix
 
+## refactor me
+MACRO(XCONFIG _package _include_DIR _link_DIR _link_FLAGS _link_r_FLAGS _cflags)
+# reset the variables at the beginning
+  SET(${_include_DIR})
+  SET(${_link_DIR})
+  SET(${_link_FLAGS})
+  SET(${_link_r_FLAGS})
+  SET(${_cflags})
+
+  FIND_PROGRAM(${_package}CONFIG_EXECUTABLE NAMES ${_package} PATHS /usr/local/bin )
+
+  # if pkg-config has been found
+  IF(${_package}CONFIG_EXECUTABLE)
+    SET(XCONFIG_EXECUTABLE "${${_package}CONFIG_EXECUTABLE}")
+    MESSAGE(STATUS "found ${_package}: ${XCONFIG_EXECUTABLE}")
+
+    EXEC_PROGRAM(${XCONFIG_EXECUTABLE} ARGS --libs OUTPUT_VARIABLE __link_FLAGS)
+    STRING(REPLACE "\n" "" ${_link_FLAGS} ${__link_FLAGS})
+    EXEC_PROGRAM(${XCONFIG_EXECUTABLE} ARGS --libs_r OUTPUT_VARIABLE __link_r_FLAGS)
+    STRING(REPLACE "\n" "" ${_link_r_FLAGS} ${__link_r_FLAGS})
+    EXEC_PROGRAM(${XCONFIG_EXECUTABLE} ARGS --cflags OUTPUT_VARIABLE __cflags)
+    STRING(REPLACE "\n" "" ${_cflags} ${__cflags})
+
+  ELSE(${_package}CONFIG_EXECUTABLE)
+    MESSAGE(STATUS "found ${_package}: no")
+  ENDIF(${_package}CONFIG_EXECUTABLE)
+ENDMACRO(XCONFIG _package _include_DIR _link_DIR _link_FLAGS _cflags)
+
 MACRO(ADD_AND_INSTALL_LIBRARY LIBNAME SRCFILES)
 	IF(BUILD_STATIC)
 		ADD_LIBRARY(${LIBNAME} STATIC ${SRCFILES})
