@@ -284,6 +284,7 @@ RAGEL_PARSER(main/http_response_parser.rl)
 RAGEL_PARSER(common/ip_parsers.rl)
 RAGEL_PARSER(main/url_parser.rl)
 RAGEL_PARSER(angel/angel_config_parser.rl)
+RAGEL_PARSER(modules/dovecot_auth_parser.rl)
 
 SET(L_INSTALL_TARGETS)
 
@@ -329,6 +330,7 @@ SET(COMMON_CFLAGS "${LUA_CFLAGS} ${LIBEV_CFLAGS} ${GTHREAD_CFLAGS} ${GMODULE_CFL
 ADD_AND_INSTALL_LIBRARY(mod_access "modules/mod_access.c")
 ADD_AND_INSTALL_LIBRARY(mod_accesslog "modules/mod_accesslog.c")
 ADD_AND_INSTALL_LIBRARY(mod_auth "modules/mod_auth.c")
+ADD_AND_INSTALL_LIBRARY(mod_auth_dovecot "modules/mod_auth_dovecot.c;modules/dovecot_auth_parser.c")
 ADD_AND_INSTALL_LIBRARY(mod_balance "modules/mod_balance.c")
 ADD_AND_INSTALL_LIBRARY(mod_cache_disk_etag "modules/mod_cache_disk_etag.c")
 ADD_AND_INSTALL_LIBRARY(mod_debug "modules/mod_debug.c")
