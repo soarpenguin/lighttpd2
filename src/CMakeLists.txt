@@ -345,6 +345,7 @@ ADD_AND_INSTALL_LIBRARY(mod_redirect "modules/mod_redirect.c")
 ADD_AND_INSTALL_LIBRARY(mod_rewrite "modules/mod_rewrite.c")
 ADD_AND_INSTALL_LIBRARY(mod_scgi "modules/mod_scgi.c")
 ADD_AND_INSTALL_LIBRARY(mod_status "modules/mod_status.c")
+ADD_AND_INSTALL_LIBRARY(mod_trigger_b4_dl "modules/mod_trigger_b4_dl.c")
 ADD_AND_INSTALL_LIBRARY(mod_userdir "modules/mod_userdir.c")
 ADD_AND_INSTALL_LIBRARY(mod_vhost "modules/mod_vhost.c")
 
