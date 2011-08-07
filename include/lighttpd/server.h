@@ -75,6 +75,8 @@ struct liServer {
 #ifdef LIGHTY_OS_LINUX
 	liValue *workers_cpu_affinity;
 #endif
+	gboolean worker_threads_running;
+
 	GArray *ts_formats;      /** array of (GString*), add with li_server_ts_format_add() */
 
 	struct ev_loop *loop;

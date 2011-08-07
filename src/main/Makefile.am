@@ -14,6 +14,7 @@ lighttpd_shared_src= \
 	condition.c \
 	config_parser.c \
 	connection.c \
+	dynamicconfig.c \
 	environment.c \
 	etag.c \
 	filter_chunked.c \

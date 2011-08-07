@@ -199,6 +199,7 @@ SET(LIGHTTPD_SHARED_SRC
 	collect.c
 	condition.c
 	connection.c
+	dynamicconfig.c
 	environment.c
 	etag.c
 	filter_chunked.c

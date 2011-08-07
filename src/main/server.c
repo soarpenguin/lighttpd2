@@ -114,6 +114,7 @@ liServer* li_server_new(const gchar *module_dir, gboolean module_resident) {
 
 	srv->workers = g_array_new(FALSE, TRUE, sizeof(liWorker*));
 	srv->worker_count = 0;
+	srv->worker_threads_running = FALSE;
 
 	srv->sockets = g_ptr_array_new();
 
@@ -204,6 +205,8 @@ void li_server_free(liServer* srv) {
 			g_thread_join(wrk->thread);
 		}
 	}
+
+	srv->worker_threads_running = FALSE;
 
 	li_action_release(srv, srv->mainaction);
 
@@ -388,6 +391,8 @@ static gboolean li_server_worker_init(liServer *srv) {
 static void li_server_worker_run(liServer *srv) {
 	guint i;
 	li_plugins_prepare_worker(srv->main_worker);
+
+	srv->worker_threads_running = TRUE;
 
 	for (i = 1; i < srv->worker_count; i++) {
 		GError *error = NULL;

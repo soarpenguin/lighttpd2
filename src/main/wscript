@@ -27,6 +27,7 @@ def build(bld):
 		condition.c
 		config_parser.rl
 		connection.c
+		dynamicconfig.c
 		environment.c
 		etag.c
 		filter_chunked.c
