@@ -13,6 +13,7 @@ lighttpd_shared_src= \
 	collect.c \
 	condition.c \
 	config_parser.c \
+	config_utils.c \
 	connection.c \
 	environment.c \
 	etag.c \

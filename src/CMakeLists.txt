@@ -198,6 +198,7 @@ SET(LIGHTTPD_SHARED_SRC
 	chunk_parser.c
 	collect.c
 	condition.c
+	config_utils.c
 	connection.c
 	environment.c
 	etag.c

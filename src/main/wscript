@@ -26,6 +26,7 @@ def build(bld):
 		collect.c
 		condition.c
 		config_parser.rl
+		config_utils.c
 		connection.c
 		environment.c
 		etag.c

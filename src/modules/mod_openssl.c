@@ -22,6 +22,7 @@
 
 #include <lighttpd/base.h>
 #include <lighttpd/plugin_core.h>
+#include <lighttpd/config_utils.h>
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -427,57 +428,92 @@ static void openssl_setup_listen_cb(liServer *srv, int fd, gpointer data) {
 
 static gboolean openssl_setup(liServer *srv, liPlugin* p, liValue *val, gpointer userdata) {
 	openssl_context *ctx;
-	GHashTableIter hti;
-	gpointer hkey, hvalue;
-	GString *htkey;
-	liValue *htval;
+	liValue *value;
+	guint keyidx;
+
+	static const liKvlistEntry params[] = {
+		{ CONST_STR_LEN("listen") },
+		{ CONST_STR_LEN("pemfile") },
+		{ CONST_STR_LEN("ca-file") },
+		{ CONST_STR_LEN("ciphers") },
+		{ CONST_STR_LEN("allow-ssl2") },
+		{ 0, 0 }
+	};
 
 	/* options */
+	liKvlistContext paramcontext;
 	const char *pemfile = NULL, *ca_file = NULL, *ciphers = NULL;
 	GString *ipstr = NULL;
-	gboolean allow_ssl2 = FALSE;
+	gboolean allow_ssl2 = FALSE, have_allow_ssl2 = FALSE;
 
 	UNUSED(p); UNUSED(userdata);
 
-	if (val->type != LI_VALUE_HASH) {
+	if (LI_VALUE_HASH != val->type && LI_VALUE_LIST != val->type) {
 		ERROR(srv, "%s", "openssl expects a hash as parameter");
 		return FALSE;
 	}
 
-	g_hash_table_iter_init(&hti, val->data.hash);
-	while (g_hash_table_iter_next(&hti, &hkey, &hvalue)) {
-		htkey = hkey; htval = hvalue;
-
-		if (g_str_equal(htkey->str, "listen")) {
-			if (htval->type != LI_VALUE_STRING) {
+	li_kvlist_init(&paramcontext, params, val);
+	while (li_kvlist_next(&paramcontext, &keyidx, &value, srv->main_worker->tmp_str)) {
+		switch (keyidx) {
+		case 0: /* "listen" */
+			if (value->type != LI_VALUE_STRING) {
+				/* TODO: remove this restriction, add lists */
+				ERROR(srv, "%s", "openssl listen expects a string as parameter");
+				return FALSE;
+			}
+			if (NULL != ipstr) {
+				/* TODO: remove this restriction. */
+				ERROR(srv, "%s", "openssl listen can only be specified once");
+				return FALSE;
+			}
+			ipstr = value->data.string;
+			break;
+		case 1: /* "pemfile" */
+			if (value->type != LI_VALUE_STRING) {
 				ERROR(srv, "%s", "openssl pemfile expects a string as parameter");
 				return FALSE;
 			}
-			ipstr = htval->data.string;
-		} else if (g_str_equal(htkey->str, "pemfile")) {
-			if (htval->type != LI_VALUE_STRING) {
-				ERROR(srv, "%s", "openssl pemfile expects a string as parameter");
+			if (NULL != pemfile) {
+				ERROR(srv, "%s", "openssl pemfile can only be specified once");
 				return FALSE;
 			}
-			pemfile = htval->data.string->str;
-		} else if (g_str_equal(htkey->str, "ca-file")) {
-			if (htval->type != LI_VALUE_STRING) {
+			pemfile = value->data.string->str;
+			break;
+		case 2: /* "ca-file" */
+			if (value->type != LI_VALUE_STRING) {
 				ERROR(srv, "%s", "openssl ca-file expects a string as parameter");
 				return FALSE;
 			}
-			ca_file = htval->data.string->str;
-		} else if (g_str_equal(htkey->str, "ciphers")) {
-			if (htval->type != LI_VALUE_STRING) {
+			if (NULL != ca_file) {
+				ERROR(srv, "%s", "openssl ca-file can only be specified once");
+				return FALSE;
+			}
+			ca_file = value->data.string->str;
+			break;
+		case 3: /* "ciphers" */
+			if (value->type != LI_VALUE_STRING) {
 				ERROR(srv, "%s", "openssl ciphers expects a string as parameter");
 				return FALSE;
 			}
-			ciphers = htval->data.string->str;
-		} else if (g_str_equal(htkey->str, "allow-ssl2")) {
-			if (htval->type != LI_VALUE_BOOLEAN) {
+			if (NULL != ciphers) {
+				ERROR(srv, "%s", "openssl ciphers can only be specified once");
+				return FALSE;
+			}
+			ciphers = value->data.string->str;
+			break;
+		case 4: /* "allow-ssl2" */
+			if (value->type != LI_VALUE_BOOLEAN) {
 				ERROR(srv, "%s", "openssl allow-ssl2 expects a boolean as parameter");
 				return FALSE;
 			}
-			allow_ssl2 = htval->data.boolean;
+			if (have_allow_ssl2) {
+				ERROR(srv, "%s", "openssl allow-ssl2 can only be specified once");
+				return FALSE;
+			}
+			have_allow_ssl2 = TRUE;
+			allow_ssl2 = value->data.boolean;
+			break;
 		}
 	}
 
