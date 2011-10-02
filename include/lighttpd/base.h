@@ -37,6 +37,7 @@
 #include <lighttpd/chunk_parser.h>
 
 #include <lighttpd/waitqueue.h>
+#include <lighttpd/stream.h>
 #include <lighttpd/radix.h>
 
 #include <lighttpd/server.h>
