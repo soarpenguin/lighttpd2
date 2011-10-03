@@ -194,6 +194,7 @@ SET(LIGHTTPD_SHARED_SRC
 	angel.c
 	angel_fake.c
 	actions.c
+	backends.c
 	chunk.c
 	chunk_parser.c
 	collect.c
